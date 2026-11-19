@@ -13,7 +13,9 @@ on:
       build_neural:
         description: "Also build the ONNX Runtime neural variant"
         type: boolean
-        default: true
+        # Off by default: github.com/microsoft/onnxruntime (source of the
+        # prebuilt zip) has been unreachable since 2026-11-17.
+        default: false
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -29,8 +31,9 @@ jobs:
 
   windows-neural:
     name: Windows x64 (ONNX neural)
-    # Runs on every push/PR; on manual dispatch it follows the checkbox.
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.build_neural }}
+    # Manual dispatch only (checkbox): the ONNX Runtime download is currently
+    # unavailable, so it must not turn every push red.
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_neural }}
     uses: ./.github/workflows/build-windows.yml
     with:
       neural: true

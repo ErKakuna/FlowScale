@@ -21,16 +21,13 @@ jobs:
       neural: false
       artifact_name: FlowScale-${{ github.ref_name }}-win64
 
-  windows-neural:
-    name: Windows x64 (ONNX neural)
-    uses: ./.github/workflows/build-windows.yml
-    with:
-      neural: true
-      artifact_name: FlowScale-${{ github.ref_name }}-win64-neural
+  # The neural variant is left out while github.com/microsoft/onnxruntime
+  # (source of the prebuilt ORT zip) is unreachable; restore it, and add it
+  # back to `needs`, once the download works again.
 
   publish:
     name: Publish GitHub Release
-    needs: [windows, windows-neural]
+    needs: [windows]
     runs-on: ubuntu-latest
     steps:
       - name: Collect zips

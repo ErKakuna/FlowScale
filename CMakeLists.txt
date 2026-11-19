@@ -88,7 +88,13 @@ if (WIN32)
         endif()
     endif()
 
-    target_compile_options(FlowScale PRIVATE /permissive- /W4 /MP /O2 /Zi /EHsc)
+    # /utf-8: sources contain UTF-8 (em dashes etc.); without it MSVC reads them
+    # with the runner's ANSI code page.
+    target_compile_options(FlowScale PRIVATE /permissive- /W4 /MP /O2 /Zi /EHsc /utf-8)
+    # FlowScale.rc already embeds FlowScale.manifest as RT_MANIFEST #1; letting
+    # the linker generate its own manifest too fails with CVT1100/LNK1123
+    # ("duplicate resource type:MANIFEST").
+    target_link_options(FlowScale PRIVATE /MANIFEST:NO)
     target_link_libraries(FlowScale PRIVATE
         d3d11 dxgi d3dcompiler d2d1 dwrite
         windowsapp runtimeobject

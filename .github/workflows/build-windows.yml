@@ -111,7 +111,18 @@ jobs:
 
       - name: Build
         shell: bash
-        run: cmake --build build --config Release --parallel
+        run: |
+          set -o pipefail
+          cmake --build build --config Release --parallel 2>&1 | tee build.log
+
+      # Job logs need a GitHub login; annotations are public (API + run page),
+      # so surface the compiler/linker errors there.
+      - name: Report build errors as annotations
+        if: failure()
+        shell: bash
+        run: |
+          [ -f build.log ] || exit 0
+          grep -E "error|fatal|FAILED" build.log | head -40 | sed 's/^/::error::/' || true
 
       - name: Unit tests (pacing / optical-flow math)
         shell: bash
